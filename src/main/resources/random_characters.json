@@ -1,0 +1,16 @@
+{
+  "cultures": ["khaiyuha", "daban", "kniziyt"],
+  "names": ["Yezhira", "Savael", "Darnukh", "Nadira"],
+  "locations": ["Ghlaleb", "Yiytchiy", "Sandibat"],
+  "affiliations": ["Ironheart Guild", "Order of Elaron", "Sunsworn"],
+  "backstories": [
+    "Raised among the drifting towers, her silence echoes in vengeance.",
+    "Cursed with forgotten memories, he wanders seeking truth.",
+    "Once noble, now outcast, she fights for a stolen destiny."
+  ],
+  "traits": ["Brave", "Cunning", "Merciful", "Impulsive", "Wise", "Loyal"],
+  "images": [
+    "https://i.imgur.com/example1.png",
+    "https://i.imgur.com/example2.png"
+  ]
+}

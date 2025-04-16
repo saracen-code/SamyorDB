@@ -1,0 +1,16 @@
+{
+  "id": "co_01",
+  "name": "Silver Traders",
+  "members": ["char_001", "char_002"],
+  "buildings": [
+    {
+      "id": 1,
+      "name": "Golden Inn",
+      "location": "West Gate",
+      "type": "Tavern",
+      "description": "Popular resting place",
+      "ownerId": "co_01"
+    }
+  ],
+  "funds": 1200.5
+}
