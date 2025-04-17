@@ -6,6 +6,8 @@ target/
 ## ignore tokens ###
 tokens/
 config.json
+client_secret.json
+google_access.json
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

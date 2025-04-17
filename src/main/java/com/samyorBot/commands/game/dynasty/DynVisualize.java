@@ -1,17 +1,16 @@
 package com.samyorBot.commands.game.dynasty;
 
+import com.samyorBot.classes.characters.Character;
+import com.samyorBot.database.CharacterDAO;
 import com.samyorBot.database.DynastyRelationDAO;
-import com.samyorBot.renders.DynastyTreeRenderer;
+import com.samyorBot.renders.DynastyTreeUploader;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
-import net.dv8tion.jda.api.utils.FileUpload;
 import org.jetbrains.annotations.NotNull;
 import xyz.dynxsty.dih4jda.interactions.commands.application.SlashCommand;
 
-import java.io.File;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class DynVisualize extends SlashCommand.Subcommand {
 
@@ -22,28 +21,63 @@ public class DynVisualize extends SlashCommand.Subcommand {
 
     @Override
     public void execute(@NotNull SlashCommandInteractionEvent event) {
+        // 0) ACKNOWLEDGE IMMEDIATELY so Discord knows we're on it
+        event.deferReply().queue();
+
         int dynastyId = event.getOption("dynasty_id").getAsInt();
 
+        // 1) Load your tree
         Map<Long, List<Long>> tree = DynastyRelationDAO.getRelationsByDynasty(dynastyId);
         if (tree.isEmpty()) {
-            event.reply("❌ Dynasty has no family relations yet.").setEphemeral(true).queue();
+            // use the hook after a defer
+            event.getHook()
+                    .sendMessage("❌ This dynasty has no family relations yet.")
+                    .setEphemeral(true)
+                    .queue();
             return;
         }
 
-        // Find root nodes (characters with no parent)
-        Set<Long> allChildren = tree.values().stream()
-                .flatMap(List::stream)
-                .collect(Collectors.toSet());
+        // 2) Build all of your ID sets and maps
+        Set<Long> allIds = new HashSet<>(tree.keySet());
+        tree.values().forEach(allIds::addAll);
 
-        Set<Long> roots = new HashSet<>(tree.keySet());
-        roots.removeAll(allChildren);
+        Map<Long, String> nameMap   = new HashMap<>();
+        Map<Long, String> genderMap = new HashMap<>();
+        Map<Long, String> birthMap  = new HashMap<>();
 
+        for (Long id : allIds) {
+            Character c = CharacterDAO.getCharacterById(id);
+            if (c != null) {
+                nameMap.put(id,
+                        c.getName() != null ? c.getName() : "Character " + id);
+                genderMap.put(id, "M");  // or pull from your DB
+                birthMap.put(id,
+                        c.getBirthdate() != null ? c.getBirthdate() : "");
+            }
+        }
+
+        // 3) Now do the heavy lifting / HTTP call
         try {
-            File image = DynastyTreeRenderer.renderTreeAsImage(tree, roots);
-            event.reply("🌳 Dynasty Tree:").addFiles(FileUpload.fromData(image)).queue();
-        } catch (Exception e) {
-            e.printStackTrace();
-            event.reply("❌ Failed to generate tree image.").setEphemeral(true).queue();
+            String url = DynastyTreeUploader.generateFamilyTreeUrl(
+                    tree, nameMap, genderMap, birthMap
+            );
+
+            if (url != null) {
+                event.getHook()
+                        .sendMessage("🌳 Here’s your family tree:\n" + url)
+                        .queue();
+            } else {
+                event.getHook()
+                        .sendMessage("❌ Failed to generate the family tree URL.")
+                        .queue();
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            event.getHook()
+                    .sendMessage("❌ An error occurred while generating the family tree.")
+                    .queue();
         }
     }
+
 }

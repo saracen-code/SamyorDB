@@ -3,6 +3,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.samyorBot.classes.traits.TraitRegistry;
 import com.samyorBot.commands.game.character.CharSetup;
+import com.samyorBot.commands.game.country.SudoCountrySetup;
 import com.samyorBot.commands.game.dynasty.DynDissolve;
 import com.samyorBot.commands.utilities.*;
 import net.dv8tion.jda.api.JDA;
@@ -41,9 +42,9 @@ public class Main {
         JDA jda = null;
         try {
             System.out.println("[INIT] Connecting to Discord...");
-            jda = JDABuilder.createDefault(token).build();
+            jda = JDABuilder.createLight(token).build();
 
-            DIH4JDA.setDefaultRegistrationType(RegistrationType.GUILD);
+            DIH4JDA.setDefaultRegistrationType(RegistrationType.GLOBAL);
             DIH4JDA dih4JDA = DIH4JDABuilder
                     .setJDA(jda)
                     .setCommandPackages("com.samyorBot.commands")
@@ -59,18 +60,26 @@ public class Main {
                             "setup_url", "setup_abilities",
                             "view_current_abilities", "choose_existing_ability",
                             "confirm_char", "create_new_char", "select_existing_char"),
-                    IdMapping.of(new DynDissolve(), "confirm_dissolve", "cancel_dissolve")
+                    IdMapping.of(new DynDissolve(), "confirm_dissolve", "cancel_dissolve"),
+                    IdMapping.of(new SudoCountrySetup(), "prev_country", "next_country", "setup_succession",
+                            "setup_population", "setup_growth", "setup_capacity", "setup_market", "setup_currency",
+                            "setup_budget", "setup_devastation", "setup_centralization", "confirm_country",
+                            "create_new_country", "select_existing_country")
             );
 
             dih4JDA.addStringSelectMenuMappings(
                     IdMapping.of(new TestCommand(), "select"),
                     IdMapping.of(new CharSetup(), "select_culture", "setup_trait", "existing_char_select",
-                            "select_existing_ability")
+                            "select_existing_ability"),
+                    IdMapping.of(new SudoCountrySetup(), "select_existing_country")
             );
 
             dih4JDA.addModalMappings(
                     IdMapping.of(new CharSetup(), "setup_name", "setup_details", "setup_skillpoints",
-                            "setup_abilities", "setup_url")
+                            "setup_abilities", "setup_url"),
+                    IdMapping.of(new SudoCountrySetup(), "modal_succession",
+                            "modal_population", "modal_growth", "modal_capacity", "modal_market", "modal_currency",
+                            "modal_budget", "modal_devastation", "modal_centralization")
             );
 
         } catch (Exception e) {

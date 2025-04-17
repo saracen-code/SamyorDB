@@ -57,7 +57,7 @@ public class CharSetup extends SlashCommand.Subcommand implements ButtonHandler,
                 .setColor(Color.MAGENTA));
 
         event.deferReply(true).queue(interactionHook -> {
-            interactionHook.editOriginalEmbeds(pages.getFirst().setFooter("Page 1 / " + pages.size()).build())
+            interactionHook.editOriginalEmbeds(pages.get(0).setFooter("Page 1 / " + pages.size()).build())
                     .setActionRow(getButtonForPage(0))
                     .queue();
         });
@@ -117,29 +117,45 @@ public class CharSetup extends SlashCommand.Subcommand implements ButtonHandler,
         }
 
         if (id.equals("select_existing_char")) {
-            List<Character> chars = CharacterDAO.getCharactersByUserId(userId);
-
-            if (chars.isEmpty()) {
-                event.reply("❌ You don't have any characters yet. Click **Create New Character** to begin.").setEphemeral(true).queue();
+            // fetch everything
+            List<Character> allChars = CharacterDAO.getCharactersByUserId(userId);
+            if (allChars.isEmpty()) {
+                event.reply("❌ You don't have any characters yet. Click **Create New Character** to begin.")
+                        .setEphemeral(true).queue();
                 return;
             }
 
-            StringSelectMenu.Builder menu = StringSelectMenu.create("existing_char_select")
-                    .setPlaceholder("Choose a character to edit");
+            // sort by ID descending (newest first), take up to 25
+            List<Character> activeChars = allChars.stream()
+                    .sorted(Comparator.comparingLong(Character::getId).reversed())
+                    .limit(25)
+                    .collect(Collectors.toList());
 
-            for (Character c : chars) {
-                menu.addOption(c.getName() + " (ID " + c.getId() + ")", String.valueOf(c.getId()));
+            StringSelectMenu.Builder menu = StringSelectMenu.create("existing_char_select")
+                    .setPlaceholder("Choose an active character to edit")
+                    .setMinValues(1)
+                    .setMaxValues(1);
+
+            for (Character c : activeChars) {
+                menu.addOption(
+                        c.getName() + " (ID " + c.getId() + ")",
+                        String.valueOf(c.getId())
+                );
             }
 
-            event.editMessageEmbeds(new EmbedBuilder()
-                            .setTitle("Select a character")
-                            .setDescription("Choose which character to edit.")
-                            .build())
+            // If you have more than 25, add a note
+            EmbedBuilder eb = new EmbedBuilder()
+                    .setTitle("Select a character")
+                    .setDescription("Showing **" + activeChars.size() + "** of **" + allChars.size() +
+                            "** active characters (newest by ID).\n" +
+                            "Use `/listchars` to see your entire roster.");
+
+            event.editMessageEmbeds(eb.build())
                     .setActionRow(menu.build())
                     .queue();
-
             return;
         }
+
 
         ///  select culture
         if (id.equals("select_culture")) {
@@ -370,7 +386,7 @@ public class CharSetup extends SlashCommand.Subcommand implements ButtonHandler,
         EmbedBuilder eb = new EmbedBuilder();
 
         if (id.equals("existing_char_select")) {
-            long selectedId = Long.parseLong(list.getFirst());
+            long selectedId = Long.parseLong(list.get(0));
             Character selected = CharacterDAO.getCharacterById(selectedId);
             userSelectedCharacter.put(userId, selected.getId());
 
@@ -392,7 +408,7 @@ public class CharSetup extends SlashCommand.Subcommand implements ButtonHandler,
         }
 
         if (id.equals("select_culture") || id.equals("1")) {
-            String culture = list.getFirst();
+            String culture = list.get(0);
             CharacterDAO.updateCharacterField(userSelectedCharacter.get(userId), "culture", culture);
             eb.setTitle("✅ Culture Set");
             eb.setDescription("You selected the culture: **" + culture + "**");
@@ -417,7 +433,7 @@ public class CharSetup extends SlashCommand.Subcommand implements ButtonHandler,
         }
 
         if (id.equals("select_existing_ability")) {
-            String abilityName = list.getFirst();
+            String abilityName = list.get(0);
             Long characterId = userSelectedCharacter.get(userId);
 
             Character character = CharacterDAO.getCharacterById(characterId);
@@ -462,25 +478,25 @@ public class CharSetup extends SlashCommand.Subcommand implements ButtonHandler,
                 break;
 
             case 1: // Culture page
-                buttonList.add(ActionRow.of(Button.secondary("select_culture", "🔄 Select Culture")).getComponents().getFirst());
+                buttonList.add(ActionRow.of(Button.secondary("select_culture", "🔄 Select Culture")).getComponents().get(0));
                 break;
 
             case 2: // Name page
-                buttonList.add(ActionRow.of(Button.secondary("setup_name", "⚙ Manual Name")).getComponents().getFirst());
-                buttonList.add(ActionRow.of(Button.secondary("random_name", "⚙ Randomized Name")).getComponents().getFirst());
+                buttonList.add(ActionRow.of(Button.secondary("setup_name", "⚙ Manual Name")).getComponents().get(0));
+                buttonList.add(ActionRow.of(Button.secondary("random_name", "⚙ Randomized Name")).getComponents().get(0));
                 break;
 
             case 3: // Character Details
-                buttonList.add(ActionRow.of(Button.secondary("edit_details", "⚙ Setup Details")).getComponents().getFirst());
-                buttonList.add(ActionRow.of(Button.secondary("cities_list", "📋 Cities Listing")).getComponents().getFirst());
+                buttonList.add(ActionRow.of(Button.secondary("edit_details", "⚙ Setup Details")).getComponents().get(0));
+                buttonList.add(ActionRow.of(Button.secondary("cities_list", "📋 Cities Listing")).getComponents().get(0));
                 break;
 
             case 4: // Traits page
-                buttonList.add(ActionRow.of(Button.secondary("set_traits", "✏️ Set Traits")).getComponents().getFirst());
+                buttonList.add(ActionRow.of(Button.secondary("set_traits", "✏️ Set Traits")).getComponents().get(0));
                 break;
 
             case 5: // Character skillpoints page
-                buttonList.add(ActionRow.of(Button.secondary("setup_sp", "🔄 Redistribute Skillpoints")).getComponents().getFirst());
+                buttonList.add(ActionRow.of(Button.secondary("setup_sp", "🔄 Redistribute Skillpoints")).getComponents().get(0));
                 break;
 
             case 6: // Abilities page
@@ -491,7 +507,7 @@ public class CharSetup extends SlashCommand.Subcommand implements ButtonHandler,
 
 
             case 7: // Image page
-                buttonList.add(ActionRow.of(Button.secondary("setup_url", "Add URL")).getComponents().getFirst());
+                buttonList.add(ActionRow.of(Button.secondary("setup_url", "Add URL")).getComponents().get(0));
                 break;
 
             case 9: // Last page (Finish button)

@@ -1,7 +1,10 @@
 package com.samyorBot.classes.characters;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Character {
     private Long id;
@@ -10,14 +13,17 @@ public class Character {
     private String culture = "Not set yet";
     private String name = "Not set yet";
     private String location = "Not set yet";
-    private String birthdate = "Not set yet";
+    private String birthdate = "Not set yet";      // ISO yyyy-MM-dd
+    private String deathdate = "Not set yet";      // new field
     private String affiliation = "Not set yet";
     private String backstory = "Not set yet";
-    private List<String> traits = List.of(new String[]{"Default"});
+    private List<String> traits = List.of("Default");
     private Map<String, Integer> statistics;
-    private List<String> abilities = List.of(new String[]{"Default"});
+    private List<String> abilities = List.of("Default");
     private String image = "0";
     private String tier = "1";
+
+    private static final DateTimeFormatter FMT = DateTimeFormatter.ISO_LOCAL_DATE;
 
     public Character() {}
 
@@ -25,22 +31,49 @@ public class Character {
         this.userId = userId;
     }
 
-    public Character(long userId, double funds, String culture, String name, String location, String birthdate,
-                     String affiliation, String backstory, List<String> traits, Map<String, Integer> statistics,
-                     List<String> abilities, String image, String tier) {
-        this.userId = userId;
-        this.funds = funds;
-        this.culture = culture;
-        this.name = name;
-        this.location = location;
-        this.birthdate = birthdate;
+    /** call this once you’ve set birthdate (in yyyy‑MM‑dd) */
+    public void randomizeDeathDate() {
+        try {
+            LocalDate b = LocalDate.parse(this.birthdate, FMT);
+            // pick an age between 40 and 90
+            long age = ThreadLocalRandom.current().nextLong(40, 91);
+            LocalDate d = b.plusYears(age);
+            this.deathdate = d.format(FMT);
+        } catch (Exception ex) {
+            // if parse fails, leave as default
+        }
+    }
+
+    // full constructor now takes deathdate as well
+    public Character(long userId,
+                     double funds,
+                     String culture,
+                     String name,
+                     String location,
+                     String birthdate,
+                     String deathdate,
+                     String affiliation,
+                     String backstory,
+                     List<String> traits,
+                     Map<String, Integer> statistics,
+                     List<String> abilities,
+                     String image,
+                     String tier)
+    {
+        this.userId      = userId;
+        this.funds       = funds;
+        this.culture     = culture;
+        this.name        = name;
+        this.location    = location;
+        this.birthdate   = birthdate;
+        this.deathdate   = deathdate;
         this.affiliation = affiliation;
-        this.backstory = backstory;
-        this.traits = traits;
-        this.statistics = statistics;
-        this.abilities = abilities;
-        this.image = image;
-        this.tier = tier;
+        this.backstory   = backstory;
+        this.traits      = traits;
+        this.statistics  = statistics;
+        this.abilities   = abilities;
+        this.image       = image;
+        this.tier        = tier;
     }
     public Long getId() { return id; }
 
@@ -88,6 +121,12 @@ public class Character {
 
     public void setBirthdate(String birthdate) {
         this.birthdate = birthdate;
+    }
+    public String getDeathdate() {
+        return this.deathdate;
+    }
+    public void setDeathdate(String deathdate) {
+        this.deathdate = deathdate;
     }
 
     public String getAffiliation() {
@@ -164,4 +203,5 @@ public class Character {
                 ", tier='" + tier + '\'' +
                 '}';
     }
+
 }

@@ -9,8 +9,8 @@ import xyz.dynxsty.dih4jda.interactions.commands.application.SlashCommand;
 public class Character extends SlashCommand {
 
     public Character() {
-        setCommandData(Commands.slash("char", "character commands"));
-        addSubcommands(new CharHelp(), new CharSetup(), new CharQuick(), new CharBirth(), new CharList());
+        setCommandData(Commands.slash("character", "character commands"));
+        addSubcommands(new CharHelp(), new CharSetup(), new CharQuick(), new CharBirth(), new CharList(), new CharDashboard());
     }
 
     // by default we execute help if no subcommand is provided
