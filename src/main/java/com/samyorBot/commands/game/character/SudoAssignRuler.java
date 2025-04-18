@@ -2,6 +2,7 @@ package com.samyorBot.commands.game.character;
 
 import com.samyorBot.classes.characters.Ruler;
 import com.samyorBot.database.RulerDAO;
+import com.samyorBot.util.ModChecker;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -24,12 +25,8 @@ public class SudoAssignRuler extends SlashCommand.Subcommand {
 
     @Override
     public void execute(@NotNull SlashCommandInteractionEvent event) {
-        // permission check
-        if (!event.getMember().hasPermission(Permission.MANAGE_ROLES)) {
-            event.reply("❌ You don't have permission to assign rulers.")
-                    .setEphemeral(true).queue();
-            return;
-        }
+        // check permissions
+        ModChecker.performSensitiveAction(event.getMember());
 
         var target = event.getOption("user").getAsUser();
         long targetId = target.getIdLong();

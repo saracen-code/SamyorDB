@@ -3,7 +3,7 @@ package com.samyorBot.commands.game.dynasty;
 import com.samyorBot.classes.characters.Character;
 import com.samyorBot.database.CharacterDAO;
 import com.samyorBot.database.DynastyRelationDAO;
-import com.samyorBot.renders.DynastyTreeUploader;
+import com.samyorBot.api.DynastyTreeUploader;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;

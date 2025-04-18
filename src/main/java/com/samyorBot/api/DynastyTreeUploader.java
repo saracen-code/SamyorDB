@@ -1,4 +1,4 @@
-package com.samyorBot.renders;
+package com.samyorBot.api;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;

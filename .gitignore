@@ -9,6 +9,12 @@ config.json
 client_secret.json
 google_access.json
 
+# Ignore Haedus runtime files
+src/main/java/haedus-runtime/input.txt
+src/main/java/haedus-runtime/output.txt
+src/main/java/haedus-runtime/runtime.rule
+
+
 ### IntelliJ IDEA ###
 .idea/modules.xml
 .idea/jarRepositories.xml

@@ -2,7 +2,9 @@ package com.samyorBot.commands.game.country;
 
 import com.samyorBot.classes.Country;
 import com.samyorBot.sheets.SheetsHelper;
+import com.samyorBot.util.ModChecker;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
@@ -41,6 +43,9 @@ public class SudoCountrySetup extends SlashCommand.Subcommand
 
     @Override
     public void execute(@NotNull SlashCommandInteractionEvent event) {
+        // check permissions
+        ModChecker.performSensitiveAction(event.getMember());
+
         long uid = event.getUser().getIdLong();
         userPages.put(uid, 0);
         userInProgress.put(uid, new Country());
